@@ -1,12 +1,17 @@
 import express from 'express';
 import mongoose from 'mongoose'; // <--- Import Mongoose
 import cookieSession from 'cookie-session';
+import cors from 'cors';
 import { createTicketRouter } from './routes/new';
 import { indexTicketRouter } from './routes/index';
 
 const app = express();
 
 app.set('trust proxy', true);
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true
+}));
 app.use(express.json());
 app.use(
     cookieSession({
