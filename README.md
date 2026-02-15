@@ -12,7 +12,10 @@
     * [x] **Create Ticket:** Frontend -> Ticket Service (Authenticated).
     * [x] **Read Tickets:** Frontend -> Ticket Service (Public).
 
-## ⏭️ Next Task: Phase 5 (NATS Streaming & Orders)
-**Goal:** We need to handle "Buying" a ticket.
-1.  **Order Service:** A new microservice to manage orders.
-2.  **Event Bus (NATS):** We need a way for the Ticket Service to tell the Order Service: *"Hey! Ticket #123 was just updated!"* without them crashing if one is offline.
+## ⏭️ Next Session Goals
+1.  **Phase 5: Release Management (Requested)**
+    * [ ] Learn Git Tags (`git tag v1.0.0`).
+    * [ ] Manage GitHub Releases & Changelogs.
+    * [ ] Semantic Versioning strategy.
+2.  **Phase 6: Event Bus (NATS)**
+    * [ ] Connect Ticket Service to NATS Streaming.

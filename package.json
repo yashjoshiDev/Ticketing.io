@@ -1,0 +1,27 @@
+{
+  "name": "ticketing.io",
+  "version": "1.0.0",
+  "description": "* **Architecture:**\r     * [x] **Auth Service (Port 4000):** Handles Users, JWTs, and Cookies.\r     * [x] **Tickets Service (Port 5000):** Handles Ticket creation/fetching.\r     * [x] **Frontend (Port 3000):** Next.js App Router for UI.\r * **Security & Identity:**\r     * [x] **Shared Identity:** Ticket Service can read Auth Cookies to identify users.\r     * [x] **Route Protection:** `requireAuth` middleware blocks non-logged-in users.\r * **Data Flow:**\r     * [x] **Create Ticket:** Frontend -> Ticket Service (Authenticated).\r     * [x] **Read Tickets:** Frontend -> Ticket Service (Public).",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm:dev:*\"",
+    "dev:auth": "cd auth-service && npm run dev",
+    "dev:tickets": "cd tickets && npm start",
+    "dev:client": "cd client && npm run dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yashjoshiDev/Ticketing.io.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/yashjoshiDev/Ticketing.io/issues"
+  },
+  "homepage": "https://github.com/yashjoshiDev/Ticketing.io#readme",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
