@@ -1,0 +1,233 @@
+{
+  "info": {
+    "_postman_id": "8d8d8d8d-8d8d-8d8d-8d8d-8d8d8d8d8d8d",
+    "name": "Ticketing.io API",
+    "description": "Collection for testing Ticketing.io Microservices via API Gateway",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Signup",
+          "id": "5c26452e-1c92-405c-83a3-5fa9a7a79dea",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"test@test.com\",\n    \"password\": \"password\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}:/api/users/signup",
+              "protocol": "http",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "port": "",
+              "path": [
+                "api",
+                "users",
+                "signup"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Signin",
+          "id": "4dbfbc59-5462-4e22-9488-aaac2ab62907",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"test@test.com\",\n    \"password\": \"password\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}:/api/users/signin",
+              "protocol": "http",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "port": "",
+              "path": [
+                "api",
+                "users",
+                "signin"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Current User",
+          "id": "a29ba7c5-bda6-490e-bd22-86f467118a49",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}:/api/users/currentuser",
+              "protocol": "http",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "port": "",
+              "path": [
+                "api",
+                "users",
+                "currentuser"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Signout",
+          "id": "fa74321c-f4b7-40bd-902e-51cecb4583f7",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}:/api/users/signout",
+              "protocol": "http",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "port": "",
+              "path": [
+                "api",
+                "users",
+                "signout"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "94e06151-b26c-4b92-acdf-38e9cb885d69"
+    },
+    {
+      "name": "Tickets",
+      "item": [
+        {
+          "name": "Get Tickets",
+          "id": "4991dd11-d232-450d-9406-0e75a7bddcbe",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}:/api/tickets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "port": "",
+              "path": [
+                "api",
+                "tickets"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Ticket",
+          "id": "b820ff32-5cf9-454d-9ac2-80a6a9c0a8cf",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Concert\",\n    \"price\": 20\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "4c974bb0-326b-4100-bb2b-3c43fb8b97eb"
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "Get Orders",
+          "id": "086bbe6f-d407-46ce-b287-01581a436219",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}:/api/orders",
+              "protocol": "http",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "port": "",
+              "path": [
+                "api",
+                "orders"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Order",
+          "id": "33b79a29-40c8-4377-91a2-f2f5c1d524de",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"ticketId\": \"TICKET_ID_HERE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}:/api/orders",
+              "protocol": "http",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "port": "",
+              "path": [
+                "api",
+                "orders"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "1083880c-6ba9-4c5b-a686-0a483dc9338e"
+    }
+  ]
+}

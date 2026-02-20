@@ -1,4 +1,0 @@
-index.ts(1,8): error TS1259: Module '"D:/ticketing-app/auth-service/node_modules/@types/express/index"' can only be default-imported using the 'esModuleInterop' flag
-index.ts(2,8): error TS1259: Module '"D:/ticketing-app/auth-service/node_modules/@types/cors/index"' can only be default-imported using the 'esModuleInterop' flag
-services/password.ts(23,58): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'BinaryLike'.
-  Type 'undefined' is not assignable to type 'BinaryLike'.

@@ -1,0 +1,73 @@
+import { Injectable, HttpStatus } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Order, OrderStatus } from './schemas/order.schema';
+import { Ticket } from './schemas/ticket.schema';
+import { RpcException } from '@nestjs/microservices';
+
+@Injectable()
+export class AppService {
+  constructor(
+    @InjectModel(Order.name) private orderModel: Model<Order>,
+    @InjectModel(Ticket.name) private ticketModel: Model<Ticket>,
+  ) { }
+
+  async onModuleInit() {
+    // Seed a ticket if none exist
+    const count = await this.ticketModel.countDocuments();
+    if (count === 0) {
+      await new this.ticketModel({ title: 'Test Concert', price: 20 }).save();
+    }
+  }
+
+  async getOrders(userId: string) {
+    return await this.orderModel.find({ userId }).populate('ticket');
+  }
+
+  async createOrder(data: any) {
+    const { ticketId, userId } = data;
+
+    // 1. Find the ticket
+    const ticket = await this.ticketModel.findById(ticketId);
+    if (!ticket) {
+      throw new RpcException({
+        message: 'Ticket not found',
+        status: HttpStatus.NOT_FOUND
+      });
+    }
+
+    // 2. Check if ticket is reserved (Simplified for now)
+    const existingOrder = await this.orderModel.findOne({
+      ticket: ticket._id,
+      status: {
+        $in: [
+          OrderStatus.Created,
+          OrderStatus.AwaitingPayment,
+          OrderStatus.Complete,
+        ],
+      },
+    });
+
+    if (existingOrder) {
+      throw new RpcException({
+        message: 'Ticket is already reserved',
+        status: HttpStatus.BAD_REQUEST
+      });
+    }
+
+    // 3. Set expiration (15 mins)
+    const expiration = new Date();
+    expiration.setSeconds(expiration.getSeconds() + 15 * 60);
+
+    // 4. Build and save the order
+    const order = new this.orderModel({
+      userId,
+      status: OrderStatus.Created,
+      expiresAt: expiration,
+      ticket: ticket,
+    });
+    await order.save();
+
+    return order;
+  }
+}

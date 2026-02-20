@@ -5,9 +5,11 @@
   "main": "index.js",
   "scripts": {
     "dev": "concurrently \"npm:dev:*\"",
-    "dev:auth": "cd auth-service && npm run dev",
-    "dev:tickets": "cd tickets && npm start",
-    "dev:client": "cd client && npm run dev"
+    "dev:gateway": "cd api-gateway && npm run start:dev",
+    "dev:auth": "cd auth && npm run start:dev",
+    "dev:tickets": "cd tickets && npm run start:dev",
+    "dev:client": "cd client && npm run dev",
+    "dev:orders": "cd orders && npm run start:dev"
   },
   "repository": {
     "type": "git",
