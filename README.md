@@ -1,41 +1,25 @@
 # Ticketing.io - NestJS Microservices Migration
 
 ## 🏗️ Architecture Overview
-
-* **API Gateway (Port 8000):** The public entry point; handles HTTP requests, session management via `cookie-session`, and proxies requests via **TCP**.
-
-* **Auth Microservice (TCP Port 4000):** Manages users, secure `scrypt` hashing, and auth logic.
-
-* **Tickets Microservice (TCP Port 5000):** Handles ticket CRUD operations.
-
-* **Orders Microservice (TCP Port 6000):** Manages reservations, order statuses, and 15-minute expiration timers.
-
-
+* **API Gateway (Port 8000):** HTTP entry point; session management; TCP proxy.
+* **Auth Service (TCP 4000):** User management and secure hashing.
+* **Tickets Service (TCP 5000):** Ticket CRUD operations.
+* **Orders Service (TCP 6000):** Reservation logic and expiration timers.
 
 ## 🎯 Next Session Goals
 
-
-
 ### 1. Phase 5: Release Management
+* **Git Tags & SemVer:** Snapshot v1.0.0 and implement versioning.
 
-* **Git Tags:** Implement `git tag v1.0.0` to snapshot stable builds.
+### 2. Phase 6: Event Bus (NATS) & Concurrency
+* **NATS Sync:** Real-time sync of "Shadow" collections.
+* **OCC:** Version-based concurrency control in Mongoose.
 
-* **GitHub Releases:** Automate changelog generation to track microservice updates.
+### 3. Phase 7: Frontend Evolution (Next.js)
+* **Performance:** Implement TanStack Query for caching.
+* **UI/UX:** Build a live countdown timer for order expiration.
+* **Validation:** Add client-side validation matching the backend schemas.
 
-* **Semantic Versioning:** Adopt a `MAJOR.MINOR.PATCH` strategy for cross-service compatibility.
-
-
-
-### 2. Phase 6: Event Bus (NATS)
-
-* **NATS Integration:** Connect the **Tickets** service to NATS Streaming.
-
-* **Real-time Sync:** Emit a `TicketCreated` event from the **Tickets** service and listen for it in the **Orders** service to update the "Shadow" collection automatically.
-
-
-
-### 3. Expiration & Payments
-
-* **Expiration Service:** Build a dedicated worker for 15-minute order cleanup.
-
-* **Payment Service:** Integrate Stripe for completing order transactions.
+### 4. Expiration & Payments
+* **Worker Service:** 15-minute cleanup via BullJS.
+* **Stripe:** Integrated payment processing.

@@ -70,4 +70,37 @@ export class AppService {
 
     return order;
   }
+
+  async syncTicket(data: any) {
+    const { id, title, price } = data;
+
+    const ticket = new this.ticketModel({
+      _id: id, // Use the same ID from the Tickets service
+      title,
+      price,
+    });
+
+    await ticket.save();
+    console.log('✅ Shadow Ticket synced successfully');
+  }
+
+  async updateSyncedTicket(data: any) {
+    const { id, title, price, version } = data;
+
+    // Find the ticket that matches the ID AND has the PREVIOUS version
+    const ticket = await this.ticketModel.findOneAndUpdate(
+      {
+        _id: id,
+        version: version - 1 // Logic: Only update if we aren't skipping a version
+      },
+      { $set: { title, price } },
+      { new: true }
+    );
+
+    if (!ticket) {
+      // If no ticket found, it means this message arrived out of order 
+      // or we missed a previous message.
+      throw new Error('Inconsistent ticket version received');
+    }
+  }
 }
