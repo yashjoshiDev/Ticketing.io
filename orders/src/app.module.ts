@@ -7,7 +7,7 @@ import { AppService } from './app.service';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://127.0.0.1/orders'),
+    MongooseModule.forRoot(process.env.MONGO_URI_ORDERS ?? 'mongodb://127.0.0.1/orders'),
     MongooseModule.forFeature([
       { name: Order.name, schema: OrderSchema },
       { name: Ticket.name, schema: TicketSchema },

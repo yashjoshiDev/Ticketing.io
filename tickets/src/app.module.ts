@@ -7,14 +7,14 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://127.0.0.1/tickets'),
+    MongooseModule.forRoot(process.env.MONGO_URI_TICKETS ?? 'mongodb://127.0.0.1/tickets'),
     MongooseModule.forFeature([{ name: Ticket.name, schema: TicketSchema }]),
     ClientsModule.register([
       {
         name: 'NATS_SERVICE',
         transport: Transport.NATS,
         options: {
-          servers: ['nats://localhost:4222'],
+          servers: [(process.env.NATS_SERVERS ?? 'nats://localhost:4222')],
         },
       },
     ]),

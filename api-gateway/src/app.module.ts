@@ -9,17 +9,17 @@ import { AppService } from './app.service';
       {
         name: 'AUTH_SERVICE',
         transport: Transport.TCP,
-        options: { port: 4000 },
+        options: { host: process.env.AUTH_HOST ?? 'localhost', port: 4000 },
       },
       {
         name: 'TICKETS_SERVICE',
         transport: Transport.TCP,
-        options: { port: 5000 },
+        options: { host: process.env.TICKETS_HOST ?? 'localhost', port: 5000 },
       },
       {
         name: 'ORDERS_SERVICE',
         transport: Transport.TCP,
-        options: { port: 6000 },
+        options: { host: process.env.ORDERS_HOST ?? 'localhost', port: 6000 },
       },
     ]),
   ],

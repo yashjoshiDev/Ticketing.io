@@ -1,0 +1,121 @@
+{
+    "workbench.colorTheme": "Default Dark Modern",
+    "workbench.iconTheme": "vs-seti",
+    "workbench.colorCustomizations": {
+        "editor.background": "#0D1117",
+        "sideBar.background": "#090C10",
+        "sideBar.border": "#30363D",
+        "activityBar.background": "#090C10",
+        "activityBar.border": "#30363D",
+        "statusBar.background": "#090C10",
+        "statusBar.border": "#30363D",
+        "statusBar.foreground": "#C9D1D9",
+        "editorGroupHeader.tabsBackground": "#090C10",
+        "tab.activeBackground": "#161B22",
+        "tab.activeForeground": "#F0F6FC",
+        "tab.inactiveBackground": "#090C10",
+        "tab.border": "#30363D",
+        "titleBar.activeBackground": "#0D1117",
+        "titleBar.border": "#30363D",
+        "terminal.background": "#090C10",
+        "terminal.foreground": "#C9D1D9",
+        "terminal.ansiBlack": "#090C10",
+        "terminal.ansiBlue": "#2AC3DE",
+        "terminal.ansiCyan": "#79C0FF",
+        "terminal.ansiGreen": "#D2FF5B",
+        "terminal.ansiMagenta": "#BB9AF7",
+        "terminal.ansiRed": "#FF007C",
+        "terminal.ansiWhite": "#C9D1D9",
+        "terminal.ansiYellow": "#FF9D00",
+        "terminal.ansiBrightBlack": "#484F58",
+        "terminal.ansiBrightBlue": "#58A6FF",
+        "terminal.ansiBrightCyan": "#A5D6FF",
+        "terminal.ansiBrightGreen": "#E3FF9D",
+        "terminal.ansiBrightMagenta": "#D2A8FF",
+        "terminal.ansiBrightRed": "#FF60A8",
+        "terminal.ansiBrightWhite": "#F0F6FC",
+        "terminal.ansiBrightYellow": "#FFC05A"
+    },
+    "editor.tokenColorCustomizations": {
+        "comments": "#7FB38B",
+        "functions": "#2AC3DE",
+        "keywords": "#FF007C",
+        "strings": "#D2FF5B",
+        "variables": "#fcfcfc",
+        "numbers": "#FF9D00",
+        "types": "#BB9AF7",
+        "textMateRules": [
+            {
+                "name": "Angular Control Flow (@if, @else, @for)",
+                "scope": [
+                    "keyword.control.at-rule.angular",
+                    "punctuation.definition.keyword.angular",
+                    "storage.type.function.angular"
+                ],
+                "settings": {
+                    "foreground": "#FF007C",
+                    "fontStyle": "bold"
+                }
+            },
+            {
+                "name": "HTML Tags and Brackets",
+                "scope": [
+                    "entity.name.tag",
+                    "punctuation.definition.tag.begin.html",
+                    "punctuation.definition.tag.end.html",
+                    "punctuation.separator.key-value.html"
+                ],
+                "settings": {
+                    "foreground": "#79C0FF"
+                }
+            },
+            {
+                "name": "HTML Attributes",
+                "scope": [
+                    "entity.other.attribute-name",
+                    "meta.attribute.html"
+                ],
+                "settings": {
+                    "foreground": "#BB9AF7"
+                }
+            },
+            {
+                "name": "Angular Directives and Interpolation",
+                "scope": [
+                    "entity.other.attribute-name.html.angular",
+                    "punctuation.definition.block.ts",
+                    "punctuation.definition.interpolation.begin.angular",
+                    "punctuation.definition.interpolation.end.angular"
+                ],
+                "settings": {
+                    "foreground": "#D2FF5B"
+                }
+            }
+        ]
+    },
+    "editor.fontFamily": "'Fira Code', 'Geist Mono', 'SF Mono', 'Monaco', 'Cascadia Code', 'Consolas', monospace",
+    "editor.fontSize": 14,
+    "editor.lineHeight": 1.7,
+    "editor.fontLigatures": true,
+    "editor.cursorBlinking": "smooth",
+    "editor.cursorStyle": "line",
+    "editor.cursorSmoothCaretAnimation": "on",
+    "editor.smoothScrolling": true,
+    "workbench.list.smoothScrolling": true,
+    "workbench.editor.enablePreview": false,
+    "editor.guides.bracketPairsHorizontal": "active",
+    "editor.guides.bracketPairs": true,
+    "editor.minimap.renderCharacters": false,
+    "editor.minimap.autohide": "mouseover",
+    "workbench.activityBar.location": "top",
+    "breadcrumbs.enabled": true,
+    "editor.stickyScroll.enabled": true,
+    "editor.linkedEditing": true,
+    "terminal.integrated.cursorStyle": "line",
+    "terminal.integrated.cursorBlinking": true,
+    "terminal.integrated.lineHeight": 1.2,
+    "editor.bracketPairColorization.enabled": true,
+    "editor.wordWrap": "on",
+    "explorer.compactFolders": false,
+    "files.autoSave": "onFocusChange"
+}

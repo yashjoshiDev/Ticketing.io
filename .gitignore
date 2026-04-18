@@ -1,50 +1,12 @@
-# Dependencies
-node_modules
-**/node_modules
-
-# Environment Variables (Keep your passwords secret!)
+# ─── Secrets / local env ────────────────────────────────────────────────────
 .env
-**/.env
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*.local
 
-# Build output (Next.js & NestJS)
-.next
-out
-build
-dist
-**/dist
-**/build
-*.tsbuildinfo
-
-# Tests
-coverage
-**/coverage
-.nyc_output
-**/.nyc_output
-
-# Postman Environments (Contains secrets/tokens)
-*.postman_environment.json
-.postman/
-postman/
-
-# Logs & Runtime
-*.log
+# ─── Node ───────────────────────────────────────────────────────────────────
+node_modules/
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-*.pid
-*.seed
-*.pid.lock
 
-# OS files
-.DS_Store
-**/.DS_Store
-Thumbs.db
-
-# IDEs
-.vscode
-.idea
+# ─── Build outputs ──────────────────────────────────────────────────────────
+dist/
+.next/
