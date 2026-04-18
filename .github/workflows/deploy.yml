@@ -21,4 +21,5 @@ jobs:
             cd Ticketing.io
             git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
             git pull origin main
+            test -f .env || cp .env.example .env
             docker compose up --build -d
