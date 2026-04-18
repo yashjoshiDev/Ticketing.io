@@ -19,5 +19,6 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd Ticketing.io
+            git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
             git pull origin main
             docker compose up --build -d
