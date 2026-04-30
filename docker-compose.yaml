@@ -77,18 +77,6 @@ services:
       - ticketing-net
     restart: unless-stopped
 
-  # ── Frontend ────────────────────────────────────────────────────────────────
-  client:
-    build:
-      context: ./client
-      dockerfile: Dockerfile
-    ports:
-      - '3000:3000'
-    depends_on:
-      - api-gateway
-    networks:
-      - ticketing-net
-    restart: unless-stopped
 
 volumes:
   mongo_data:
