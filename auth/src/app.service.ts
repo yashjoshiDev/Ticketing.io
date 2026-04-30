@@ -24,7 +24,7 @@ export class AppService {
 
     const userJwt = jwt.sign(
       { id: user.id, email: user.email },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET!,
     );
 
     return { user, token: userJwt };
@@ -47,7 +47,7 @@ export class AppService {
 
     const userJwt = jwt.sign(
       { id: existingUser.id, email: existingUser.email },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET!,
     );
 
     return { user: existingUser, token: userJwt };
@@ -55,7 +55,7 @@ export class AppService {
 
   async decodeToken(token: string) {
     try {
-      return jwt.verify(token, process.env.JWT_SECRET);
+      return jwt.verify(token, process.env.JWT_SECRET!);
     } catch (err) {
       return null;
     }
