@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -17,6 +18,7 @@ async function bootstrap() {
     options: { servers: [(process.env.NATS_SERVERS ?? 'nats://localhost:4222')] },
   });
 
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   await app.startAllMicroservices();
   await app.listen(3001); // Internal HTTP for health checks if needed
 }

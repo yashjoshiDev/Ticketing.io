@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Ticket } from './schemas/ticket.schema';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { CreateTicketDto } from './dto/ticket.dto';
 
 @Injectable()
 export class AppService {
@@ -10,7 +11,7 @@ export class AppService {
     @Inject('NATS_SERVICE') private natsClient: ClientProxy,
     @InjectModel(Ticket.name) private ticketModel: Model<Ticket>) { }
 
-  async createTicket(data: any) {
+  async createTicket(data: CreateTicketDto) {
     const { title, price, userId } = data;
     const ticket = new this.ticketModel({ title, price, userId });
     await ticket.save();
@@ -25,8 +26,13 @@ export class AppService {
     return ticket;
   }
 
-  async getTickets() {
-    return await this.ticketModel.find({});
+  async getTickets(page: number = 1, limit: number = 20) {
+    const skip = (page - 1) * limit;
+    const [data, total] = await Promise.all([
+      this.ticketModel.find({}).skip(skip).limit(limit).exec(),
+      this.ticketModel.countDocuments(),
+    ]);
+    return { data, total, page, limit };
   }
 
   async updateTicket(id: string, data: any) {
