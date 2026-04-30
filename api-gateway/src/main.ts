@@ -1,5 +1,7 @@
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
 import cookieSession = require('cookie-session');
+import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/rpc-exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -7,12 +9,19 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.use(helmet());
   app.use(
     cookieSession({
-      signed: false,
-      secure: false, // Set to true in production
-    }),
+      signed: true,
+      keys: [process.env.COOKIE_SECRET ?? 'dev-cookie-secret'],
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: true,
+    })
   );
+  app.enableCors({
+    origin: process.env.CLIENT_URL ?? 'http://localhost:3000',
+    credentials: true,
+  });
 
   const config = new DocumentBuilder()
     .setTitle('Ticketing.io API')
@@ -24,6 +33,7 @@ async function bootstrap() {
 
   // Add the Global Filter
   app.useGlobalFilters(new AllExceptionsFilter());
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   await app.listen(process.env.PORT ?? 8000);
 }
 bootstrap();

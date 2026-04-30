@@ -4,12 +4,14 @@ import { Model } from 'mongoose';
 import * as jwt from 'jsonwebtoken';
 import { User } from './schemas/user.schema';
 import { Password } from './utils/password';
+import { SignupDto } from './dto/auth.dto';
+import { SigninDto } from './dto/auth.dto';
 
 @Injectable()
 export class AppService {
   constructor(@InjectModel(User.name) private userModel: Model<User>) { }
 
-  async signup(data: any) {
+  async signup(data: SignupDto) {
     const { email, password } = data;
     const existingUser = await this.userModel.findOne({ email });
     if (existingUser) {
@@ -22,13 +24,13 @@ export class AppService {
 
     const userJwt = jwt.sign(
       { id: user.id, email: user.email },
-      'asdf', // Use process.env.JWT_KEY in production
+      process.env.JWT_SECRET,
     );
 
     return { user, token: userJwt };
   }
 
-  async signin(data: any) {
+  async signin(data: SigninDto) {
     const { email, password } = data;
     const existingUser = await this.userModel.findOne({ email });
     if (!existingUser) {
@@ -45,7 +47,7 @@ export class AppService {
 
     const userJwt = jwt.sign(
       { id: existingUser.id, email: existingUser.email },
-      'asdf',
+      process.env.JWT_SECRET,
     );
 
     return { user: existingUser, token: userJwt };
@@ -53,7 +55,7 @@ export class AppService {
 
   async decodeToken(token: string) {
     try {
-      return jwt.verify(token, 'asdf');
+      return jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
       return null;
     }

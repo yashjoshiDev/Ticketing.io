@@ -1,8 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET environment variable is not set');
+  }
+
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule,
     {
@@ -10,6 +15,7 @@ async function bootstrap() {
       options: { port: 4000 },
     },
   );
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   await app.listen();
 }
 bootstrap();

@@ -1,33 +1,25 @@
-'use client';
-
-import { useState, useEffect } from "react";
+import Link from 'next/link';
 
 export default function Home() {
-  const [data, setData] = useState<any>(null);
-
-  useEffect(() => {
-    // Fetch data from our Backend on Port 4000
-    fetch('http://localhost:4000/')
-      .then((res) => res.json())
-      .then((data) => setData(data))
-      .catch((err) => console.error("Failed to fetch:", err));
-  }, []);
-
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-24 bg-gray-900 text-white">
-      <h1 className="text-4xl font-bold mb-8">Ticketing App</h1>
-
-      <div className="p-6 border border-gray-700 rounded-lg bg-gray-800">
-        <h2 className="text-xl font-semibold mb-4">Backend Status:</h2>
-
-        {data ? (
-          <div className="text-green-400">
-            <p>✅ {data.message}</p>
-            <p className="text-sm text-gray-400 mt-2">Server Time: {data.time}</p>
-          </div>
-        ) : (
-          <p className="text-yellow-500">Connecting to server...</p>
-        )}
+    <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+      <h1 className="text-5xl font-bold mb-4 text-white">Welcome to Ticketing.io</h1>
+      <p className="text-gray-400 text-lg mb-8 max-w-xl">
+        Buy and sell event tickets in a secure, fast marketplace.
+      </p>
+      <div className="flex gap-4">
+        <Link
+          href="/tickets"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+        >
+          Browse Tickets
+        </Link>
+        <Link
+          href="/signup"
+          className="border border-gray-600 hover:border-gray-400 text-gray-300 hover:text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+        >
+          Get Started
+        </Link>
       </div>
     </div>
   );

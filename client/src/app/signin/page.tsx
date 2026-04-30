@@ -2,48 +2,34 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { apiFetch } from '@/lib/api';
+import { useAuth } from '@/context/AuthContext';
 
-export default function NewTicketPage() {
+export default function SigninPage() {
   const router = useRouter();
-  const [title, setTitle] = useState('');
-  const [price, setPrice] = useState('');
+  const { refresh } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handlePriceBlur = () => {
-    const parsed = parseFloat(price);
-    if (!isNaN(parsed)) setPrice(parsed.toFixed(2));
-  };
-
-  const validate = () => {
-    if (!title.trim()) return 'Title is required.';
-    if (title.length > 100) return 'Title must be 100 characters or less.';
-    const p = parseFloat(price);
-    if (isNaN(p) || p <= 0) return 'Price must be a positive number.';
-    return '';
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const validationError = validate();
-    if (validationError) { setError(validationError); return; }
+    if (!email || !password) { setError('Email and password are required.'); return; }
     setIsLoading(true);
     setError('');
     try {
-      const res = await apiFetch('/api/tickets', {
+      const res = await apiFetch('/api/users/signin', {
         method: 'POST',
-        body: JSON.stringify({ title: title.trim(), price: parseFloat(price) }),
+        body: JSON.stringify({ email, password }),
       });
-      if (res.status === 401) {
-        setError('You must be signed in to create a ticket.');
-        return;
-      }
+      const data = await res.json();
       if (!res.ok) {
-        const data = await res.json();
-        setError(data.message ?? 'Failed to create ticket.');
+        setError(data.message ?? 'Invalid email or password.');
         return;
       }
+      await refresh();
       router.push('/tickets');
     } catch {
       setError('Network error. Please try again.');
@@ -55,7 +41,7 @@ export default function NewTicketPage() {
   return (
     <div className="flex items-center justify-center min-h-[70vh]">
       <div className="w-full max-w-md bg-gray-800 rounded-xl p-8 border border-gray-700 shadow-xl">
-        <h1 className="text-2xl font-bold text-white mb-6">List a Ticket</h1>
+        <h1 className="text-2xl font-bold text-white mb-6">Sign in</h1>
         {error && (
           <div className="bg-red-900/50 border border-red-600 text-red-300 rounded-lg px-4 py-3 mb-4 text-sm">
             {error}
@@ -63,29 +49,24 @@ export default function NewTicketPage() {
         )}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Title</label>
+            <label className="block text-sm font-medium text-gray-300 mb-1">Email</label>
             <input
-              type="text"
-              value={title}
-              onChange={e => setTitle(e.target.value)}
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
               required
-              maxLength={100}
               className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500"
-              placeholder="Concert ticket, sports event..."
+              placeholder="you@example.com"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Price (USD)</label>
+            <label className="block text-sm font-medium text-gray-300 mb-1">Password</label>
             <input
-              type="number"
-              value={price}
-              onChange={e => setPrice(e.target.value)}
-              onBlur={handlePriceBlur}
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
               required
-              min="0.01"
-              step="0.01"
               className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500"
-              placeholder="0.00"
             />
           </div>
           <button
@@ -93,9 +74,13 @@ export default function NewTicketPage() {
             disabled={isLoading}
             className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-lg transition-colors"
           >
-            {isLoading ? 'Listing ticket...' : 'List Ticket'}
+            {isLoading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
+        <p className="text-gray-400 text-sm mt-4 text-center">
+          Don&apos;t have an account?{' '}
+          <Link href="/signup" className="text-blue-400 hover:text-blue-300">Sign up</Link>
+        </p>
       </div>
     </div>
   );

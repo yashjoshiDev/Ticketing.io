@@ -7,10 +7,13 @@ import {
   Req,
   Res,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import type { Request, Response } from 'express';
 import { firstValueFrom } from 'rxjs';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { SignupBodyDto, SigninBodyDto, CreateTicketBodyDto, CreateOrderBodyDto } from './dto/gateway.dto';
 
 @Controller()
 export class AppController {
@@ -21,7 +24,7 @@ export class AppController {
   ) { }
 
   @Post('api/users/signup')
-  async signup(@Body() body: any, @Req() req: Request) {
+  async signup(@Body() body: SignupBodyDto, @Req() req: Request) {
     const result = await firstValueFrom(
       this.authClient.send({ cmd: 'signup' }, body),
     );
@@ -32,7 +35,7 @@ export class AppController {
   }
 
   @Post('api/users/signin')
-  async signin(@Body() body: any, @Req() req: Request) {
+  async signin(@Body() body: SigninBodyDto, @Req() req: Request) {
     const result = await firstValueFrom(
       this.authClient.send({ cmd: 'signin' }, body),
     );
@@ -61,39 +64,33 @@ export class AppController {
     return this.ticketsClient.send({ cmd: 'get_tickets' }, {});
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('api/tickets')
-  async createTicket(@Body() body: any, @Req() req: Request) {
-    const userResult = await firstValueFrom(
-      this.authClient.send({ cmd: 'currentuser' }, { token: req.session?.jwt }),
-    );
-
+  async createTicket(@Body() body: CreateTicketBodyDto, @Req() req: Request) {
+    const currentUser = (req as any).currentUser;
     return this.ticketsClient.send(
       { cmd: 'create_ticket' },
-      { ...body, userId: userResult.currentUser?.id || 'guest' },
+      { ...body, userId: currentUser?.currentUser?.id || 'guest' },
     );
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('api/orders')
   async getOrders(@Req() req: Request) {
-    const userResult = await firstValueFrom(
-      this.authClient.send({ cmd: 'currentuser' }, { token: req.session?.jwt }),
-    );
-
+    const currentUser = (req as any).currentUser;
     return this.ordersClient.send(
       { cmd: 'get_orders' },
-      { userId: userResult.currentUser?.id },
+      { userId: currentUser?.currentUser?.id },
     );
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('api/orders')
-  async createOrder(@Body() body: any, @Req() req: Request) {
-    const userResult = await firstValueFrom(
-      this.authClient.send({ cmd: 'currentuser' }, { token: req.session?.jwt }),
-    );
-
+  async createOrder(@Body() body: CreateOrderBodyDto, @Req() req: Request) {
+    const currentUser = (req as any).currentUser;
     return this.ordersClient.send(
       { cmd: 'create_order' },
-      { ...body, userId: userResult.currentUser?.id },
+      { ...body, userId: currentUser?.currentUser?.id },
     );
   }
 }

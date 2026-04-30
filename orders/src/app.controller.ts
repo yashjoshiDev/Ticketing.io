@@ -1,13 +1,16 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Logger } from '@nestjs/common';
 import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
 import { AppService } from './app.service';
+import { CreateOrderDto } from './dto/order.dto';
 
 @Controller()
 export class AppController {
+  private readonly logger = new Logger(AppController.name);
+
   constructor(private readonly appService: AppService) { }
 
   @MessagePattern({ cmd: 'create_order' })
-  async createOrder(@Payload() data: any) {
+  async createOrder(@Payload() data: CreateOrderDto) {
     return this.appService.createOrder(data);
   }
 
@@ -18,13 +21,13 @@ export class AppController {
 
   @EventPattern('ticket:created')
   async handleTicketCreated(@Payload() data: any) {
-    console.log('📦 Orders Service received Ticket Created event:', data);
+    this.logger.log('Received ticket:created event');
     await this.appService.syncTicket(data);
   }
 
   @EventPattern('ticket:updated')
   async handleTicketUpdated(@Payload() data: any) {
-    console.log('🔄 Orders Service received Ticket Updated event:', data);
+    this.logger.log('Received ticket:updated event');
     await this.appService.updateSyncedTicket(data);
   }
 }
