@@ -7,22 +7,86 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy:
+  build-and-push:
     runs-on: ubuntu-latest
-    
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push auth
+        uses: docker/build-push-action@v5
+        with:
+          context: ./auth
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/ticketing-auth:latest
+          cache-from: type=gha,scope=auth
+          cache-to: type=gha,scope=auth,mode=max
+
+      - name: Build and push tickets
+        uses: docker/build-push-action@v5
+        with:
+          context: ./tickets
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/ticketing-tickets:latest
+          cache-from: type=gha,scope=tickets
+          cache-to: type=gha,scope=tickets,mode=max
+
+      - name: Build and push orders
+        uses: docker/build-push-action@v5
+        with:
+          context: ./orders
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/ticketing-orders:latest
+          cache-from: type=gha,scope=orders
+          cache-to: type=gha,scope=orders,mode=max
+
+      - name: Build and push api-gateway
+        uses: docker/build-push-action@v5
+        with:
+          context: ./api-gateway
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/ticketing-api-gateway:latest
+          cache-from: type=gha,scope=api-gateway
+          cache-to: type=gha,scope=api-gateway,mode=max
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
     steps:
       - name: Deploy to EC2 Server
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          envs: GHCR_TOKEN,GITHUB_ACTOR
+          command_timeout: 5m
           script: |
             if [ ! -d "Ticketing.io" ]; then
-              git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git Ticketing.io
+              git clone https://x-access-token:$GHCR_TOKEN@github.com/yashjoshiDev/Ticketing.io.git Ticketing.io
             fi
             cd Ticketing.io
-            git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+            git remote set-url origin https://x-access-token:$GHCR_TOKEN@github.com/yashjoshiDev/Ticketing.io.git
             git pull origin main
             test -f .env || cp .env.example .env
-            docker compose up --build -d
+            echo $GHCR_TOKEN | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
+            docker compose pull
+            docker compose up -d

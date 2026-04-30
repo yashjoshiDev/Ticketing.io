@@ -26,6 +26,7 @@ services:
 
   # ── Microservices ───────────────────────────────────────────────────────────
   auth:
+    image: ghcr.io/yashjoshidev/ticketing-auth:latest
     build:
       context: ./auth
       dockerfile: Dockerfile
@@ -37,6 +38,7 @@ services:
     restart: unless-stopped
 
   tickets:
+    image: ghcr.io/yashjoshidev/ticketing-tickets:latest
     build:
       context: ./tickets
       dockerfile: Dockerfile
@@ -49,6 +51,7 @@ services:
     restart: unless-stopped
 
   orders:
+    image: ghcr.io/yashjoshidev/ticketing-orders:latest
     build:
       context: ./orders
       dockerfile: Dockerfile
@@ -63,6 +66,7 @@ services:
 
   # ── API Gateway ─────────────────────────────────────────────────────────────
   api-gateway:
+    image: ghcr.io/yashjoshidev/ticketing-api-gateway:latest
     build:
       context: ./api-gateway
       dockerfile: Dockerfile
@@ -76,7 +80,6 @@ services:
     networks:
       - ticketing-net
     restart: unless-stopped
-
 
 volumes:
   mongo_data:
