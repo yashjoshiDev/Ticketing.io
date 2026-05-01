@@ -37,7 +37,7 @@ export default function OrdersPage() {
     if (!user) { router.push('/signin'); return; }
     apiFetch('/api/orders')
       .then(res => res.json())
-      .then(data => { setOrders(data); setLoading(false); })
+      .then(data => { setOrders(Array.isArray(data) ? data : []); setLoading(false); })
       .catch(() => { setError('Failed to load orders.'); setLoading(false); });
   }, [user, authLoading, router]);
 
