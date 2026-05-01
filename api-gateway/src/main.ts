@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { ValidationPipe } from '@nestjs/common';
 import cookieSession = require('cookie-session');
 import helmet from 'helmet';
@@ -7,7 +8,10 @@ import { AllExceptionsFilter } from './common/filters/rpc-exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  // Trust reverse proxies (Cloudflare Tunnel) so cookie-session sees HTTPS
+  app.set('trust proxy', 1);
 
   app.use(helmet());
   const isProd = process.env.NODE_ENV === 'production';

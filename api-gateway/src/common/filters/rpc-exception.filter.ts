@@ -14,7 +14,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
         // If it's a Microservice error (TCP) forwarded to the Gateway
         // We look for a 'status' or 'statusCode' in the error object sent via TCP
-        const status = exception.status || exception.statusCode || HttpStatus.INTERNAL_SERVER_ERROR;
+        const rawStatus = exception.status || exception.statusCode || HttpStatus.INTERNAL_SERVER_ERROR;
+        const status = typeof rawStatus === 'number' ? rawStatus : HttpStatus.INTERNAL_SERVER_ERROR;
         const message = exception.message || 'Internal server error';
 
         response.status(status).json({
