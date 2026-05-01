@@ -10,12 +10,14 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.use(helmet());
+  const isProd = process.env.NODE_ENV === 'production';
   app.use(
     cookieSession({
       signed: true,
       keys: [process.env.COOKIE_SECRET ?? 'dev-cookie-secret'],
-      secure: process.env.NODE_ENV === 'production',
+      secure: isProd,       // HTTPS only in production
       httpOnly: true,
+      sameSite: isProd ? 'none' : 'lax', // 'none' required for cross-origin cookies (Vercel → EC2/tunnel)
     })
   );
   app.enableCors({
