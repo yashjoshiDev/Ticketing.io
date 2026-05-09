@@ -1,9 +1,9 @@
-import { Injectable, HttpStatus, Logger } from '@nestjs/common';
+import { Injectable, HttpStatus, Logger, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Order, OrderStatus } from './schemas/order.schema';
 import { Ticket } from './schemas/ticket.schema';
-import { RpcException } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { CreateOrderDto } from './dto/order.dto';
 
 @Injectable()
@@ -13,6 +13,7 @@ export class AppService {
   constructor(
     @InjectModel(Order.name) private orderModel: Model<Order>,
     @InjectModel(Ticket.name) private ticketModel: Model<Ticket>,
+    @Inject('NATS_SERVICE') private natsClient: ClientProxy,
   ) { }
 
   async onModuleInit() {
@@ -70,6 +71,14 @@ export class AppService {
       ticket: ticket,
     });
     await order.save();
+
+    this.natsClient.emit('order:created', {
+      id: order.id,
+      userId: order.userId,
+      status: order.status,
+      expiresAt: order.expiresAt,
+      price: ticket.price,
+    });
 
     return order;
   }

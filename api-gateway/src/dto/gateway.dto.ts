@@ -32,3 +32,11 @@ export class CreateOrderBodyDto {
   @IsMongoId()
   ticketId: string;
 }
+
+export class CreatePaymentBodyDto {
+  @IsMongoId()
+  orderId: string;
+
+  @IsString()
+  token: string;
+}

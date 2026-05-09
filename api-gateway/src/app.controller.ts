@@ -13,7 +13,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import type { Request, Response } from 'express';
 import { firstValueFrom } from 'rxjs';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { SignupBodyDto, SigninBodyDto, CreateTicketBodyDto, CreateOrderBodyDto } from './dto/gateway.dto';
+import { SignupBodyDto, SigninBodyDto, CreateTicketBodyDto, CreateOrderBodyDto, CreatePaymentBodyDto } from './dto/gateway.dto';
 
 @Controller()
 export class AppController {
@@ -21,6 +21,7 @@ export class AppController {
     @Inject('AUTH_SERVICE') private authClient: ClientProxy,
     @Inject('TICKETS_SERVICE') private ticketsClient: ClientProxy,
     @Inject('ORDERS_SERVICE') private ordersClient: ClientProxy,
+    @Inject('PAYMENTS_SERVICE') private paymentsClient: ClientProxy,
   ) { }
 
   @Post('api/users/signup')
@@ -90,6 +91,16 @@ export class AppController {
     const currentUser = (req as any).currentUser;
     return this.ordersClient.send(
       { cmd: 'create_order' },
+      { ...body, userId: currentUser?.currentUser?.id },
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('api/payments')
+  async createPayment(@Body() body: CreatePaymentBodyDto, @Req() req: Request) {
+    const currentUser = (req as any).currentUser;
+    return this.paymentsClient.send(
+      { cmd: 'create_payment' },
       { ...body, userId: currentUser?.currentUser?.id },
     );
   }

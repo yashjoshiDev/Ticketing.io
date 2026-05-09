@@ -25,6 +25,11 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
         transport: Transport.TCP,
         options: { host: process.env.ORDERS_HOST ?? 'localhost', port: 6000 },
       },
+      {
+        name: 'PAYMENTS_SERVICE',
+        transport: Transport.TCP,
+        options: { host: process.env.PAYMENTS_HOST ?? 'localhost', port: 7000 },
+      },
     ]),
   ],
   controllers: [AppController],

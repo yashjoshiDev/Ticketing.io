@@ -7,7 +7,7 @@ import { Document } from 'mongoose';
     // Rename __v to 'version' for better clarity in your events
     versionKey: 'version',
     toJSON: {
-        transform(doc, ret: any) {
+        transform(_doc, ret: any) {
             ret.id = ret._id;
             delete ret._id;
             // Note: We keep 'version' in the JSON so the Gateway/Orders 

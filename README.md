@@ -8,7 +8,7 @@ A production-grade, event-driven ticketing marketplace built with a microservice
 
 ## Architecture Overview
 
-Ticketing.io is not a monolith. It is composed of **5 independent services** that communicate over two channels:
+Ticketing.io is not a monolith. It is composed of **6 independent services** that communicate over two channels:
 
 - **TCP (request/response)** — the API Gateway sends commands to microservices and waits for a reply
 - **NATS (publish/subscribe)** — microservices emit events that other services react to asynchronously
@@ -22,25 +22,24 @@ Ticketing.io is not a monolith. It is composed of **5 independent services** tha
                         ┌──────────────▼──────────────────────┐
                         │         API Gateway (NestJS)         │
                         │  Single HTTP entry point — port 8000 │
-                        └───┬──────────────┬──────────────┬───┘
-                            │ TCP          │ TCP          │ TCP
-               ┌────────────▼───┐  ┌───────▼──────┐  ┌───▼──────────┐
-               │  Auth Service  │  │   Tickets    │  │    Orders    │
-               │   port 4000    │  │   Service    │  │   Service    │
-               │                │  │  port 5000   │  │  port 6000   │
-               └────────────────┘  └──────┬───────┘  └──────┬───────┘
-                                          │                  │
-                                          └────────┬─────────┘
-                                                   │ NATS Events
-                                        ┌──────────▼──────────┐
-                                        │    NATS Server       │
-                                        │  (Event Bus)         │
-                                        └─────────────────────┘
-                                                   │
-                                        ┌──────────▼──────────┐
-                                        │      MongoDB         │
-                                        │  (per-service DB)    │
-                                        └─────────────────────┘
+                        └──┬──────────┬──────────┬─────────┬──┘
+                           │ TCP      │ TCP      │ TCP     │ TCP
+               ┌───────────▼─┐  ┌─────▼────┐  ┌─▼────────┐  ┌▼──────────┐
+               │    Auth     │  │ Tickets  │  │  Orders  │  │ Payments  │
+               │  port 4000  │  │ port 5000│  │ port 6000│  │ port 7000 │
+               └─────────────┘  └────┬─────┘  └────┬─────┘  └─────┬─────┘
+                                     │              │               │
+                                     └──────┬───────┘───────────────┘
+                                            │ NATS Events
+                                 ┌──────────▼──────────┐
+                                 │    NATS Server       │
+                                 │  (Event Bus)         │
+                                 └─────────────────────┘
+                                            │
+                                 ┌──────────▼──────────┐
+                                 │      MongoDB         │
+                                 │  (per-service DB)    │
+                                 └─────────────────────┘
 ```
 
 ### Why microservices?
@@ -71,7 +70,15 @@ Each service owns its data and can be deployed, scaled, and failed independently
 - **Port:** 6000 (TCP + NATS)
 - **Role:** Manages ticket reservations. When an order is created, it locks the ticket for 15 minutes. Maintains a local shadow copy of tickets (synced from NATS events) to avoid cross-service DB queries.
 - **Order states:** `created` → `awaiting:payment` → `complete` / `cancelled`
+- **Events published:** `order:created`, `order:cancelled`
 - **Events consumed:** `ticket:created`, `ticket:updated`
+
+### Payments Service
+- **Port:** 7000 (TCP + NATS)
+- **Role:** Handles Stripe charges. Maintains a local shadow copy of orders (synced from NATS events) to validate ownership and status before charging. Records every successful charge in its own database.
+- **Events published:** `payment:created`
+- **Events consumed:** `order:created`, `order:cancelled`
+- **External:** Stripe API (test mode) — charges are created using a Stripe token passed from the client
 
 ### Client (Next.js)
 - **Deployed on:** Vercel (auto-deploys on every push to `main`)
@@ -88,6 +95,7 @@ Each service owns its data and can be deployed, scaled, and failed independently
 | Backend | NestJS 11, TypeScript |
 | Database | MongoDB 7 (Mongoose ODM) |
 | Event Bus | NATS (pub/sub messaging) |
+| Payments | Stripe (test mode, charges API) |
 | Auth | JWT (jsonwebtoken), cookie-session |
 | Validation | class-validator, class-transformer |
 | Security | Helmet, CORS, scrypt hashing, ThrottlerModule |
@@ -124,10 +132,11 @@ Push to main
 ┌─────────────────────────────────────────┐
 │         build-and-push job              │
 │                                         │
-│  Build auth image    → push to ghcr.io  │
-│  Build tickets image → push to ghcr.io  │
-│  Build orders image  → push to ghcr.io  │
-│  Build gateway image → push to ghcr.io  │
+│  Build auth image     → push to ghcr.io  │
+│  Build tickets image  → push to ghcr.io  │
+│  Build orders image   → push to ghcr.io  │
+│  Build payments image → push to ghcr.io  │
+│  Build gateway image  → push to ghcr.io  │
 │                                         │
 │  (Docker layer cache via GHA cache)     │
 └─────────────────┬───────────────────────┘
@@ -172,6 +181,13 @@ All routes go through the API Gateway at `http://localhost:8000`.
 | `GET` | `/api/orders` | Required | — | List current user's orders |
 | `POST` | `/api/orders` | Required | `{ ticketId }` | Reserve a ticket (15 min expiry) |
 
+### Payments
+| Method | Path | Auth | Body | Description |
+|---|---|---|---|---|
+| `POST` | `/api/payments` | Required | `{ orderId, token }` | Charge card and complete order |
+
+> **`token`** is a Stripe token generated client-side via Stripe.js. Use `tok_visa` in test mode.
+
 ---
 
 ## Running Locally
@@ -195,6 +211,7 @@ Edit `.env` and replace the placeholder values:
 ```env
 JWT_SECRET=your-strong-secret-here
 COOKIE_SECRET=another-strong-secret
+STRIPE_SECRET_KEY=sk_test_...   # from Stripe dashboard → Developers → API keys
 ```
 
 ### 3. Start all backend services
@@ -202,7 +219,7 @@ COOKIE_SECRET=another-strong-secret
 docker compose up --build -d
 ```
 
-This starts: MongoDB, NATS, Auth, Tickets, Orders, and the API Gateway.
+This starts: MongoDB, NATS, Auth, Tickets, Orders, Payments, and the API Gateway.
 
 ### 4. Start the frontend
 ```bash
@@ -240,6 +257,10 @@ Ticketing.io/
 │   └── src/
 │       ├── dto/
 │       └── schemas/      # Order schema, shadow Ticket schema
+├── payments/             # Payments microservice (TCP + NATS + Stripe)
+│   └── src/
+│       ├── dto/
+│       └── schemas/      # Payment schema, shadow Order schema
 ├── client/               # Next.js 16 frontend (deployed on Vercel)
 │   └── src/
 │       ├── app/          # App Router pages
@@ -259,13 +280,18 @@ Ticketing.io/
 |---|---|---|
 | `JWT_SECRET` | auth | Secret key for signing JWT tokens |
 | `COOKIE_SECRET` | api-gateway | Key for signing session cookies |
+| `JWT_SECRET` | auth | Secret key for signing JWT tokens |
+| `COOKIE_SECRET` | api-gateway | Key for signing session cookies |
+| `STRIPE_SECRET_KEY` | payments | Stripe secret key (use `sk_test_…` for test mode) |
 | `MONGO_URI_AUTH` | auth | MongoDB connection string |
 | `MONGO_URI_TICKETS` | tickets | MongoDB connection string |
 | `MONGO_URI_ORDERS` | orders | MongoDB connection string |
-| `NATS_SERVERS` | tickets, orders | NATS connection URL |
+| `MONGO_URI_PAYMENTS` | payments | MongoDB connection string |
+| `NATS_SERVERS` | tickets, orders, payments | NATS connection URL |
 | `AUTH_HOST` | api-gateway | Hostname of auth service |
 | `TICKETS_HOST` | api-gateway | Hostname of tickets service |
 | `ORDERS_HOST` | api-gateway | Hostname of orders service |
+| `PAYMENTS_HOST` | api-gateway | Hostname of payments service |
 | `CLIENT_URL` | api-gateway | Frontend origin for CORS |
 | `NEXT_PUBLIC_API_URL` | client | API Gateway URL |
 
@@ -285,8 +311,11 @@ Ticketing.io/
 
 ## What's Next
 
-- [ ] Stripe payment integration — complete the `awaiting:payment` → `complete` flow
-- [ ] Worker service — auto-cancel expired orders via a background job (BullMQ)
+- [x] Stripe payment integration — charges via Stripe Charges API (test mode)
+- [ ] Expiration service — auto-cancel expired orders via a background job (BullMQ)
+- [ ] Order cancellation — cancel endpoint + `order:cancelled` event publishing
+- [ ] Ticket locking — mark tickets as reserved when ordered via NATS
+- [ ] Payment → Complete flow — wire `payment:created` → order status `complete`
 - [ ] WebSocket notifications — real-time order status updates
 - [ ] Ticket search and filtering
 - [ ] Seller dashboard with order analytics
